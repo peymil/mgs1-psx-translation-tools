@@ -6,7 +6,7 @@
 
 
 #define RDCODE_NULL 0
-#define RDCODE_TALK 1
+#define RDCODE_TALK 0x01
 #define RDCODE_VOICE 2
 #define RDCODE_ANIM 3
 #define RDCODE_ADD_CONTACT 4
@@ -87,9 +87,9 @@ char *getActor(uint16_t actor) {
 
 int parseText(FILE *fp, uint16_t chunkSize) {
     int isEndFound = -1;
-    int offset = 0;
+    uint16_t offset = 0;
     uint8_t byte;
-    while (offset <= chunkSize) {
+    while (offset < chunkSize) {
         offset++;
         fread(&byte, 1, 1, fp);
         if (byte == RDCODE_ENDLINE) {
@@ -116,9 +116,11 @@ int parseText(FILE *fp, uint16_t chunkSize) {
             }
         }
     }
+    fseek(fp, -1, SEEK_CUR);
 }
 
 void readContainer(FILE *fp, struct ScriptContainer *container) {
+    printf("curr: %d \n", ftell(fp));
     fread(&container->radio_freq, 2, 1, fp);
     swap_uint16(&container->radio_freq);
     fread(&container->unk1, 2, 1, fp);
