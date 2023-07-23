@@ -41,9 +41,9 @@ void swap_uint16(uint16_t *val) {
     *val = (*val << 8) | (*val >> 8);
 }
 
-void replaceMgsNewLine(char* text){
+void replaceMgsNewLine(char *text) {
     for (uint i = 0; i < strlen(text) - 3; i++) {
-        if (text[i] == 0xffffff80 && text[i + 1] == 0x23 && text[i + 2] == 0xffffff80 && text[i + 3] == 0x4e){
+        if (text[i] == 0xffffff80 && text[i + 1] == 0x23 && text[i + 2] == 0xffffff80 && text[i + 3] == 0x4e) {
             text[i] = '/';
             text[i + 1] = '/';
             text[i + 2] = '/';
@@ -96,6 +96,7 @@ int parseText(FILE *fp, uint16_t chunkSize) {
             isEndFound = 1;
         } else if (isEndFound == 1) {
             if (byte == RDCODE_TALK) {
+                int start = ftell(fp);
                 uint16_t size;
                 uint16_t actor;
                 fread(&size, 2, 1, fp);
@@ -105,22 +106,19 @@ int parseText(FILE *fp, uint16_t chunkSize) {
                 fseek(fp, 4, SEEK_CUR);
                 uint8_t *text = malloc(size - 8);
                 fread(text, 1, size - 8, fp);
-                printf("0x%x %s \n", ftell(fp), getActor(actor));
-                replaceMgsNewLine(text);
+                printf("%d %d %s\n", start, size, getActor(actor));
+                // replaceMgsNewLine(text);
                 printf("%s \n%s \n \n", text, text);
                 offset = offset + size;
                 isEndFound = -1;
-                printf("end: %d \n", ftell(fp));
             } else {
                 isEndFound = -1;
             }
         }
     }
-    fseek(fp, -1, SEEK_CUR);
 }
 
 void readContainer(FILE *fp, struct ScriptContainer *container) {
-    printf("curr: %d \n", ftell(fp));
     fread(&container->radio_freq, 2, 1, fp);
     swap_uint16(&container->radio_freq);
     fread(&container->unk1, 2, 1, fp);
