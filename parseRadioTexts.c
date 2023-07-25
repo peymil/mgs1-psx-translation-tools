@@ -40,13 +40,14 @@ void swap_uint16(uint16_t *val) {
     *val = (*val << 8) | (*val >> 8);
 }
 
-void replaceMgsNewLine(char *text) {
-    for (uint i = 0; i < strlen(text) - 3; i++) {
+void replaceMgsNewLine(char *text, size_t size) {
+    if(size < 4) return;
+    for (uint i = 0; i < size - 3; i++) {
         if (text[i] == 0xffffff80 && text[i + 1] == 0x23 && text[i + 2] == 0xffffff80 && text[i + 3] == 0x4e) {
             text[i] = '/';
             text[i + 1] = '/';
             text[i + 2] = '/';
-            text[i + 3] = 'n';
+            text[i + 3] = 'N';
         }
     }
 }
@@ -106,7 +107,7 @@ int parseText(FILE *fp, uint16_t chunkSize) {
                 uint8_t *text = malloc(size - 8);
                 fread(text, 1, size - 8, fp);
                 printf("%d %d %s\n", start, size, getActor(actor));
-                // replaceMgsNewLine(text);
+                replaceMgsNewLine(text,size - 8);
                 printf("%s \n%s \n \n", text, text);
                 offset = offset + size;
                 isEndFound = -1;
@@ -161,7 +162,7 @@ int main(int argc, char *argv[]) {
         swap_uint16(&freq);
 
         if (freq >= 14000 && freq <= 14300) {
-            printf("Container-%d 0x%x \n \n", containerN, ftell(fp));
+            printf("Container-%d %d \n \n", containerN, ftell(fp));
             struct ScriptContainer *container = malloc(sizeof(struct ScriptContainer));
             readContainer(fp, container);
 //            printf("Radio Frequency: %d\n", container->radio_freq);
