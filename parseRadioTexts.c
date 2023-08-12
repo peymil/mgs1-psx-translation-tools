@@ -1,5 +1,5 @@
-#include <stdio.h>
 #include <stdint.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -42,7 +42,7 @@ void swap_uint16(uint16_t *val) {
 
 void replaceMgsNewLine(char *text, size_t size) {
     if(size < 4) return;
-    for (uint i = 0; i < size - 3; i++) {
+    for (int i = 0; i < size - 3; i++) {
         if (text[i] == 0xffffff80 && text[i + 1] == 0x23 && text[i + 2] == 0xffffff80 && text[i + 3] == 0x4e) {
             text[i] = '/';
             text[i + 1] = '/';
@@ -136,7 +136,7 @@ int main(int argc, char *argv[]) {
     unsigned char *path = argv[1];
     uint16_t freq = 1;
     int peek = 1;
-    uint containerN = 0;
+    int containerN = 0;
 
     FILE *fp = fopen(path, "r");
     if (fp == NULL) {

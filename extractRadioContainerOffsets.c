@@ -51,7 +51,8 @@ void readContainer(FILE *fp, struct ScriptContainer *container) {
     fread(&container->unk3, 1, 1, fp);
     fread(&container->chunksize, 2, 1, fp);
     swap_uint16(&container->chunksize);
-    fseek(fp, container->chunksize -2, SEEK_CUR);
+    container->chunk = malloc(container->chunksize - 2);
+    fread(&container->chunk, 1, container->chunksize - 2, fp);
 }
 
 
@@ -59,7 +60,7 @@ int main(int argc, char *argv[]) {
     unsigned char *path = argv[1];
     uint16_t freq = 1;
     int peek = 1;
-    uint containerN = 0;
+    int containerN = 0;
 
     FILE *fp = fopen(path, "r");
     if (fp == NULL) {
@@ -85,10 +86,10 @@ int main(int argc, char *argv[]) {
         swap_uint16(&freq);
 
         if (freq >= 14000 && freq <= 14300) {
-            uint16_t start= ftell(fp);
+            int start = ftell(fp);
             struct ScriptContainer *container = malloc(sizeof(struct ScriptContainer));
             readContainer(fp, container);
-            printf("%04x0A%08x\n", container->radio_freq,start);
+            printf("%04x0A%08x\n", container->radio_freq, start);
 
 //            printf("Radio Frequency: %d\n", container->radio_freq);
 //            printf("Unknown 1: %d\n", container->unk1);
@@ -103,10 +104,7 @@ int main(int argc, char *argv[]) {
             uint8_t *bitmap = malloc(36);
             fread(bitmap, 1, 36, fp);
         }
-
-
     }
 
-    fclose(fp);
     return 0;
 }
